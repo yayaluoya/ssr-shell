@@ -35,7 +35,7 @@ export const projectConfigName = `${packageJSON.name}.config.js`;
 export const projectConfigUrl = path.join(process.cwd(), projectConfigName);
 
 /** 配置模板文件名字 */
-export const configTemName = 'config_tem.txt'
+export const configTemName = 'config_tem.js'
 
 /**
  * 获取cwd配置文件
@@ -72,7 +72,7 @@ export async function getConfigTem(): Promise<string> {
     let defaultConfig_ = await ConfigManager.handleConfig(ObjectUtils.clone2(await defaultConfig));
     return fs.readFileSync(path.join(PathConst.toolRootPath, configTemName))
         .toString()
-        .replace(/(\${\s*(\w+)\s*})/g, (a, b, c) => {
+        .replace(/(\$__(\w+)__)/g, (a, b, c) => {
             switch (c) {
                 case 'name':
                     return packageJSON.name;

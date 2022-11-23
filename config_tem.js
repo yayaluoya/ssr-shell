@@ -5,7 +5,7 @@
  */
 let getConfig;
 try {
-    getConfig = require("${name}").getConfig;
+    getConfig = require("$__name__").getConfig;
 } catch {
     getConfig = (_) => Promise.resolve(_());
 }
@@ -15,5 +15,5 @@ module.exports = getConfig(() => {
      * 返回配置信息
      * TODO 可以是Promise
      */
-    return ${def}
+    return $__def__
 })
