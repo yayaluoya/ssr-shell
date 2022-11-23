@@ -5,6 +5,7 @@ import { PathConst } from "../tool/PathConst";
 import { IConfig } from "./IConfig";
 import { ConfigManager } from "./ConfigManager";
 import { ObjectUtils } from "yayaluoya-tool/dist/obj/ObjectUtils";
+import { temDataInject } from "../tool/temDataInject";
 
 /**
  * 包配置文件
@@ -70,16 +71,13 @@ export function getConfig(_url: string, a?: string): Promise<IConfig> {
  */
 export async function getConfigTem(): Promise<string> {
     let defaultConfig_ = await ConfigManager.handleConfig(ObjectUtils.clone2(await defaultConfig));
-    return fs.readFileSync(path.join(PathConst.toolRootPath, configTemName))
-        .toString()
-        .replace(/(\$__(\w+)__)/g, (a, b, c) => {
-            switch (c) {
-                case 'name':
-                    return packageJSON.name;
-                case 'description':
-                    return packageJSON.description;
-                case 'def':
-                    return JSON.stringify(defaultConfig_, undefined, 8);
-            }
-        });
+    return temDataInject(
+        fs.readFileSync(path.join(PathConst.toolRootPath, configTemName))
+            .toString(),
+        {
+            name: packageJSON.name,
+            description: packageJSON.description,
+            def: JSON.stringify(defaultConfig_, undefined, 8),
+        },
+    );
 }

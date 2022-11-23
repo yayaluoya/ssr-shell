@@ -3,15 +3,16 @@ import { getCmdOp, IOp as IOp_ } from "yayaluoya-tool/dist/node/getCmdOp";
 import { IConfig } from "../config/IConfig";
 import chalk from "chalk";
 import fs from "fs";
-import path from "path";
-import { configTemName, defaultConfig as defaultConfig_, getConfig, getConfigTem, getCwdConfig, packageJSON, projectConfigUrl } from "../config/getConfig";
+import { defaultConfig as defaultConfig_, getConfig, getConfigTem, getCwdConfig, packageJSON, projectConfigUrl } from "../config/getConfig";
 import { cmdSecondCom } from "yayaluoya-tool/dist/node/cmdSecondCom"
-import { PathConst } from "../tool/PathConst";
 import { ObjectUtils } from "yayaluoya-tool/dist/obj/ObjectUtils";
 import { pathCompletion } from "../tool/pathCompletion";
-import { ConfigManager } from "../config/ConfigManager";
+import { start } from "../start";
 
-interface IOp extends IOp_ {
+type IOp = IOp_ & Pick<
+    IConfig,
+    'port' | 'proxyDir'
+> & {
     /** 帮助 */
     help: boolean;
     /** 初始化配置文件 */
@@ -22,18 +23,13 @@ interface IOp extends IOp_ {
     config: string;
 }
 
-let cmdOp = getCmdOp<IOp &
-    Pick<
-        IConfig,
-        'port' | 'proxyDir'
-    >
->((pro) => {
+let cmdOp = getCmdOp<IOp>((pro) => {
     pro.option('-h --help')
         .option('-i --init')
         .option('-c --config <path>')
         .option('-dc --debug-config [path]')
-        .option('-pd --proxy-dir')
-        .option('-p --port')
+        .option('-pd --proxy-dir <path>')
+        .option('-p --port <port>')
 });
 
 (async () => {
@@ -41,9 +37,16 @@ let cmdOp = getCmdOp<IOp &
     const defaultConfig = ObjectUtils.clone2(await defaultConfig_);
 
     switch (true) {
+        /** 
+         * 查看版本
+         */
         case cmdOp.version:
             console.log(chalk.green('当前工具版本@ ') + chalk.yellow(packageJSON.version));
             break;
+
+        /**
+         * 查看帮助信息
+         */
         case cmdOp.help:
             console.log(chalk.hex('#d2e603')(`${packageJSON.name}的所有命令😀:`));
             console.log(chalk.green('   -v --version ') + chalk.gray('查看当前工具版本'));
@@ -51,9 +54,13 @@ let cmdOp = getCmdOp<IOp &
             console.log(chalk.green('   -i --init ') + chalk.gray('初始化配置文件'));
             console.log(chalk.green('   -dc --debug-config [path] ') + chalk.gray('查看某个配置文件'));
             console.log(chalk.green('   -c --config <path> ') + chalk.gray('用指定配置文件来运行'));
-            console.log(chalk.green('   -pd --proxy-dir ') + chalk.gray('指定代理目录执行'));
-            console.log(chalk.green('   -p --port ') + chalk.gray('指定端口执行'));
+            console.log(chalk.green('   -pd --proxy-dir <path> ') + chalk.gray('指定代理目录执行'));
+            console.log(chalk.green('   -p --port <port> ') + chalk.gray('指定端口执行'));
             break;
+
+        /**
+         * 配置文件初始化
+         */
         case Boolean(cmdOp.init):
             let p = Promise.resolve();
             if (fs.statSync(projectConfigUrl, {
@@ -75,6 +82,10 @@ let cmdOp = getCmdOp<IOp &
                 console.log(e);
             });
             break;
+
+        /**
+         * 查看当前项目的配置信息
+         */
         case Boolean(cmdOp.debugConfig):
             console.log(chalk.yellow('配置信息：'));
             if (typeof cmdOp.debugConfig == 'string') {
@@ -89,23 +100,29 @@ let cmdOp = getCmdOp<IOp &
                 );
             }
             break;
+
+        /**
+         * 开始项目
+         */
         default:
+            let config: IConfig;
             //合并指定配置
             if (Boolean(cmdOp.config)) {
-                ObjectUtils.merge(defaultConfig, await getConfig(pathCompletion(cmdOp.config), '配置文件导入错误，将以默认配置运行!'))
+                config = await getConfig(pathCompletion(cmdOp.config), '配置文件导入错误，将以默认配置运行!');
             } else {
-                ObjectUtils.merge(defaultConfig, await getCwdConfig())
+                config = await getCwdConfig();
             }
-            //合并命令行参数中的配置
+            /**
+             * 合并命令行参数中的配置
+             * 以命令行中的参数覆盖配置文件中的参数
+             */
             let cwdConfig: Partial<IConfig> = {};
             cmdOp.proxyDir && (cwdConfig.proxyDir = cmdOp.proxyDir);
-            cmdOp.port && (cwdConfig.port = cmdOp.port);
-            ObjectUtils.merge(defaultConfig, cwdConfig);
+            cmdOp.port && (cwdConfig.port = parseInt(cmdOp.port + ''));
+            ObjectUtils.merge(config, cwdConfig);
+            //开始
+            start(config);
             //
-            let config = await ConfigManager.handleConfig(defaultConfig);
-            ConfigManager.config = config;
-            //
-            console.log('配置', config);
             break;
     }
 })();

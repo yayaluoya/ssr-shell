@@ -4,8 +4,7 @@
   "description": "用更简单方便的方式实现服务端渲染",
   "main": "index.js",
   "scripts": {
-    "tsc-w": "tsc -w",
-    "test": "nodemon ./dist/__bin/test.js --watch ./dist/**"
+    "tsc-w": "tsc -w"
   },
   "bin": {
     "ssr-shell": "./dist/__bin/index.js"

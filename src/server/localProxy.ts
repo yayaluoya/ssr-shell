@@ -1,4 +1,4 @@
-import express, { Response } from "express";
+import express from "express";
 import PortTool from "../tool/PortTool";
 import { pathCompletion } from "../tool/pathCompletion";
 import { URLT } from "yayaluoya-tool/dist/http/URLT"
@@ -6,6 +6,7 @@ import path from "path";
 import { PathConst } from "../tool/PathConst";
 import { injectScriptName } from "../const";
 import { fileRes } from "./fileRes";
+import { temDataInject } from "../tool/temDataInject";
 
 /** 配置项接口 */
 export interface IOp {
@@ -22,7 +23,7 @@ export interface IOp {
  * @param dir 需要代理的目录
  * @returns 
  */
-export function localProxy(op: IOp): Promise<{
+export function localProxy(op: IOp, injectScriptOp?: Record<string, any>): Promise<{
     /** 端口 */
     port: number;
     /** 本地地址 */
@@ -50,7 +51,13 @@ export function localProxy(op: IOp): Promise<{
                 });
                 break;
             case URLT.contrast(url.path, injectScriptName):
-                fileRes(path.join(PathConst.webDistPath, 'index.js'), res);
+                fileRes(path.join(PathConst.webDistPath, 'index.js'), res, {
+                    trasform: (b) => {
+                        return temDataInject(b.toString(), {
+                            ...injectScriptOp,
+                        });
+                    }
+                });
                 break;
             default:
                 fileRes(path.join(op.dir, url.path), res, {

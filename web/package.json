@@ -9,7 +9,9 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "yayaluoya-tool": "^1.7.5"
+  },
   "devDependencies": {
     "esbuild-loader": "^2.20.0",
     "nodemon": "^2.0.19",
