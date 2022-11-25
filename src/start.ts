@@ -1,8 +1,8 @@
 import { ConfigManager } from "./config/ConfigManager";
 import { IConfig } from "./config/IConfig";
-import { SocketManager } from "yayaluoya-tool/dist/http/SocketManager";
 import PortTool from "./tool/PortTool";
 import { localProxy } from "./server/localProxy";
+import { SocketManager } from "./server/SocketManager";
 
 /**
  * 注入数据类型

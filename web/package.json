@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "yayaluoya-tool": "^1.7.5"
+    "yayaluoya-tool": "^1.7.6"
   },
   "devDependencies": {
     "esbuild-loader": "^2.20.0",
