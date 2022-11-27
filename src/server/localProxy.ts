@@ -29,9 +29,6 @@ export function localProxy(op: IOp, injectScriptOp?: Record<string, any>): Promi
     /** 本地地址 */
     url: string;
 }> {
-    /** 配置项补全 */
-    op = opHandle(op);
-
     const app = express()
     app.use(
         express.json(), // for parsing application/json
@@ -80,17 +77,4 @@ export function localProxy(op: IOp, injectScriptOp?: Record<string, any>): Promi
             });
         });
     });
-}
-
-
-
-/**
- * 配置处理
- * @param op 
- */
-function opHandle(op: IOp): IOp {
-    op.dir = pathCompletion(op.dir);
-    op.homeReg || (op.homeReg = /^$|^\/$|^\/index.html$/);
-    op.home || (op.home = 'index.html');
-    return op;
 }

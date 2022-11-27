@@ -18,7 +18,7 @@ export class SocketManager extends BaseEvent {
      * @returns 
      */
     start(port: number, checkTime?: number) {
-        SocketManager_.instance.start(port, checkTime);
+        SocketManager_.instance.start(port, checkTime, false);
         SocketManager_.instance.on('message', this, (_, __, data) => {
             let { key, req } = JSON.parse(data.toString());
             this.emit(key, req);
@@ -30,20 +30,21 @@ export class SocketManager extends BaseEvent {
      * @param key 目标key
      * @param data 消息体
      */
-    sendMsg(data: any): number {
-        return SocketManager_.instance.sendMsg('', JSON.stringify(data));
+    sendMsg(key: string, data: any): number {
+        return SocketManager_.instance.sendMsg(key, JSON.stringify(data));
     }
 
     /**
      * 发送请求
+     * @param key 
      * @param url 
      * @param head 
      * @returns 
      */
-    requst(url: string, head: Record<string, string>): Promise<string> {
+    requst(key: string, url: string, head: Record<string, string>): Promise<string> {
         return new Promise((r, e) => {
             let key: string = Crypto.md5(Date.now() + Math.random().toString());
-            this.sendMsg({
+            this.sendMsg(key, {
                 key,
                 res: {
                     url,

@@ -9,7 +9,7 @@ import { instanceTool } from "yayaluoya-tool/dist/instanceTool";
 @instanceTool()
 export class SSRShellT extends BaseEvent<'requst'> {
     static instance: SSRShellT;
-    ws = new WS(`ws://localhost:${getInjectData().wsPort}`);
+    ws = new WS(`ws://localhost:${getInjectData().wsPort}/${getInjectData().ws_key}`);
 
     constructor() {
         super();

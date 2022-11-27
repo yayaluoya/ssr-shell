@@ -23,6 +23,9 @@ export class ConfigManager {
         if (!c.port) {
             c.port = await PortTool.getPool();
         }
+        c.homeReg || (c.homeReg = /^$|^\/$|^\/index.html$/);
+        c.home || (c.home = 'index.html');
+        //
         return c;
     }
 }
