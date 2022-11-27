@@ -5,7 +5,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "typeRoots": [
+      "ssr-shell/web/index"
+    ],
+    "types": ["node"]
   },
 
   "references": [

@@ -1,6 +1,5 @@
 import express from "express";
 import PortTool from "../tool/PortTool";
-import { pathCompletion } from "../tool/pathCompletion";
 import { URLT } from "yayaluoya-tool/dist/http/URLT"
 import path from "path";
 import { PathConst } from "../tool/PathConst";

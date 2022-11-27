@@ -5,6 +5,7 @@ import { localProxy } from "./server/localProxy";
 import { SocketManager } from "./server/SocketManager";
 import { server } from "./server/server";
 import { PuppeteerHandelT } from "./puppeteer/PuppeteerHandelT";
+import { packageJSON } from "./config/getConfig";
 
 /**
  * 注入数据类型
@@ -35,8 +36,9 @@ export async function start(config: IConfig) {
     }, injectData);
     await PuppeteerHandelT.instance.start();
     let { port, url } = await server(config, (req, res) => {
-        PuppeteerHandelT.instance.handle(req, res, localProxyUrl);
+        PuppeteerHandelT.instance.handle(req, res, localProxyUrl, config.timeoutTime);
     });
-    console.log('代理服务', localProxyUrl);
-    console.log('主服务', url);
+    console.log(`${packageJSON.name}:`);
+    console.log('本地代理服务', localProxyUrl);
+    console.log('外部访问服务', url);
 }

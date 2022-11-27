@@ -10,6 +10,6 @@ export function getInjectData(): IInjectData & {
     return {
         // @ts-ignore
         wsPort: $__wsPort__,
-        ws_key: new URL(window.location.href).searchParams.get('ws_key'),
+        ws_key: new URL(window.location.href).searchParams.get('ws_key') || '',
     };
 }

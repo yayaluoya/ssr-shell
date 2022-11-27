@@ -41,11 +41,11 @@ export class SocketManager extends BaseEvent {
      * @param head 
      * @returns 
      */
-    requst(key: string, url: string, head: Record<string, string>): Promise<string> {
+    requst(key: string, url: string, head: Record<string, string>, timeoutTime = 3 * 1000): Promise<string> {
         return new Promise((r, e) => {
-            let key: string = Crypto.md5(Date.now() + Math.random().toString());
+            let msgKey: string = Crypto.md5(Date.now() + Math.random().toString());
             this.sendMsg(key, {
-                key,
+                key: msgKey,
                 res: {
                     url,
                     head,
@@ -53,10 +53,10 @@ export class SocketManager extends BaseEvent {
             });
             // 一段时间后过期
             let time = setTimeout(() => {
-                this.off(key, this, r);
+                this.off(msgKey, this, r);
                 e('超时');
-            }, 60 * 1000);
-            this.onOnce(key, this, (req) => {
+            }, timeoutTime);
+            this.onOnce(msgKey, this, (req) => {
                 clearTimeout(time);
                 r(req);
             });

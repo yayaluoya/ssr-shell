@@ -30,7 +30,7 @@ export class PuppeteerHandelT {
      * @param homeUrl 
      * @returns 
      */
-    async handle(req: Request, res: Response, homeUrl: string) {
+    async handle(req: Request, res: Response, homeUrl: string, timeoutTime?: number) {
         let { url, headers } = req;
         const page = await this.browser.newPage();
         let ws_key = Crypto.md5(Date.now() + Math.random().toString());
@@ -38,14 +38,12 @@ export class PuppeteerHandelT {
         res.writeHead(HttpStatus.OK, {
             'content-type': mime.getType('.html'),
         });
-        SocketManager.instance.requst(ws_key, url, headers as any)
+        SocketManager.instance.requst(ws_key, url, headers as any, timeoutTime)
             .then((content) => {
-                if (!content) {
-                    return page.content();
-                }
+                return content || page.content();
             })
             .then(content => {
-                res.end(content)
+                res.end(content);
             })
             .catch(e => {
                 console.log('向web端请求失败', e);

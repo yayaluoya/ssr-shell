@@ -10,4 +10,6 @@ export interface IConfig {
     homeReg?: RegExp;
     /** 主页地址 */
     home?: string;
+    /** web端响应的超时时间 */
+    timeoutTime?: number;
 }

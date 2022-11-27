@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import "./.ssr";
+import "./ssr";
 
 import './assets/main.css'
 
