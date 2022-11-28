@@ -1,11 +1,11 @@
 import chalk from "chalk";
 import path from "path";
 import fs from "fs";
-import { PathConst } from "../tool/PathConst";
 import { IConfig } from "./IConfig";
 import { ConfigManager } from "./ConfigManager";
 import { ObjectUtils } from "yayaluoya-tool/dist/obj/ObjectUtils";
 import { temDataInject } from "../tool/temDataInject";
+import { PathConst } from "../const/PathConst";
 
 /**
  * 包配置文件

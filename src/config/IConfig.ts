@@ -1,3 +1,7 @@
+import {
+    IncomingMessage
+} from "http";
+
 /**
  * 配置类型
  */
@@ -17,4 +21,6 @@ export interface IConfig {
     home?: string;
     /** web端响应的超时时间 */
     timeoutTime?: number;
+    /** puppeteer拦截，如果返回false则会不用puppeteer中转 */
+    puppeteerIntercept?: (req: IncomingMessage) => boolean;
 }

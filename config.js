@@ -5,6 +5,5 @@ const { getConfig } = require('./index');
 module.exports = getConfig(() => {
     return {
         proxyDir: process.cwd(),
-        port: 3414,
     };
 });
