@@ -18,6 +18,10 @@ module.exports = getConfig(() => {
      * TODO 可以是Promise
      */
     return {
+        proxyServer: {
+            host: '127.0.0.1',
+            port: 5173,
+        },
         "proxyDir": path.join(__dirname, './dist'),
         "port": 3415
     }

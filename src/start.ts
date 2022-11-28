@@ -6,6 +6,7 @@ import { SocketManager } from "./server/SocketManager";
 import { server } from "./server/server";
 import { PuppeteerHandelT } from "./puppeteer/PuppeteerHandelT";
 import { packageJSON } from "./config/getConfig";
+import { getObjPro } from "./tool/getObjPro";
 
 /**
  * 注入数据类型
@@ -29,13 +30,9 @@ export async function start(config: IConfig) {
         wsPort
     };
     //开启本地项目代理
-    let { url: localProxyUrl } = await localProxy({
-        dir: config.proxyDir,
-        home: config.home,
-        homeReg: config.homeReg,
-    }, injectData);
+    let { url: localProxyUrl } = await localProxy(getObjPro(config, ['proxyDir', 'proxyServer', 'home', 'homeReg']), injectData);
     await PuppeteerHandelT.instance.start();
-    let { port, url } = await server(config, (req, res) => {
+    let { port, url } = await server(config, localProxyUrl, (req, res) => {
         PuppeteerHandelT.instance.handle(req, res, localProxyUrl, config.timeoutTime);
     });
     console.log(`${packageJSON.name}:`);

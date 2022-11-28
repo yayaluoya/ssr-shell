@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import mime from "mime";
 import { HttpStatus } from "yayaluoya-tool/dist/http/HttpStatus";
 import fs from "fs";
