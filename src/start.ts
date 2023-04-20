@@ -32,7 +32,7 @@ export async function start(config: IConfig) {
     //开启本地项目代理
     let { url: localProxyUrl } = await localProxy(getObjPro(config, ['proxyDir', 'proxyServer', 'home', 'homeReg']), injectData);
     await PuppeteerHandelT.instance.start();
-    let { port, url } = await server(config, localProxyUrl, (req, res) => {
+    let { url } = await server(config, localProxyUrl, (req, res) => {
         PuppeteerHandelT.instance.handle(req, res, localProxyUrl, config.timeoutTime);
     });
     console.log(`${packageJSON.name}:`);

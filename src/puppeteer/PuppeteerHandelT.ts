@@ -1,6 +1,9 @@
-import { Request, Response } from "express";
+import {
+    IncomingMessage,
+    ServerResponse
+} from "http";
 import { instanceTool } from "yayaluoya-tool/dist/instanceTool";
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 import { HttpStatus } from "yayaluoya-tool/dist/http/HttpStatus";
 import mime from "mime";
 import { Crypto } from "yayaluoya-tool/dist/Crypto";
@@ -30,7 +33,7 @@ export class PuppeteerHandelT {
      * @param homeUrl 
      * @returns 
      */
-    async handle(req: Request, res: Response, homeUrl: string, timeoutTime?: number) {
+    async handle(req: IncomingMessage, res: ServerResponse, homeUrl: string, timeoutTime?: number) {
         let { url, headers } = req;
         const page = await this.browser.newPage();
         let ws_key = Crypto.md5(Date.now() + Math.random().toString());
@@ -46,7 +49,7 @@ export class PuppeteerHandelT {
                 res.end(content);
             })
             .catch(e => {
-                console.log('向web端请求失败', e);
+                console.error(e);
                 return page.content().then(content => {
                     res.end(content);
                 });

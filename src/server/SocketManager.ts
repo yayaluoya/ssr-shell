@@ -51,10 +51,10 @@ export class SocketManager extends BaseEvent {
                     head,
                 }
             });
-            // 一段时间后过期
+            // 
             let time = setTimeout(() => {
                 this.off(msgKey, this, r);
-                e('超时');
+                e(`请求超时@${url}`);
             }, timeoutTime);
             this.onOnce(msgKey, this, (req) => {
                 clearTimeout(time);

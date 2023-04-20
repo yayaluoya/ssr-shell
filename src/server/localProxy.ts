@@ -2,12 +2,12 @@ import express from "express";
 import PortTool from "../tool/PortTool";
 import { URLT } from "yayaluoya-tool/dist/http/URLT"
 import path from "path";
-import { PathConst } from "../tool/PathConst";
-import { injectScriptName } from "../const";
+import { injectScriptName, injectScriptUrl } from "../const";
 import { temDataInject } from "../tool/temDataInject";
 import { IConfig } from "../config/IConfig";
-import httpProxy from "http-proxy";
 import { fileRes } from "./fileRes";
+import { ObjectUtils } from "yayaluoya-tool/dist/obj/ObjectUtils";
+import { createProxyServer } from "../tool/createProxyServer";
 
 /**
  * 注入脚本连接
@@ -15,11 +15,8 @@ import { fileRes } from "./fileRes";
  * @returns 
  */
 function injectScript(b: string | Buffer) {
-    let str = b.toString();
-    //TODO 注入该工具需要的脚本
-    // 在第一个脚本之前注入
-    // console.log('注入脚本');
-    return str.replace(/(<script[^>]*>)/, `<script src="/${injectScriptName}"></script>\n$1`);
+    //TODO 注入工具需要的脚本
+    return b.toString().replace(/(<script[^>]*>)/, `<script src="/${injectScriptName}"></script>\n$1`);
 }
 
 /**
@@ -35,46 +32,39 @@ export function localProxy(op: Pick<IConfig, 'proxyDir' | 'proxyServer' | 'home'
 }> {
     // 如果是代理某个服务的话
     if (op.proxyServer) {
-        const proxyServer = httpProxy.createProxyServer({
+        let proxyServer = createProxyServer({
             target: `http://${op.proxyServer.host}:${op.proxyServer.port}`,
-            // 自己处理响应
             selfHandleResponse: true,
             ws: true,
-        });
-        proxyServer.on('proxyRes', (proxyRes, req, res) => {
-            var body: any = [];
-            proxyRes.on('data', (chunk) => {
-                body.push(chunk);
-            });
-            proxyRes.on('end', () => {
-                body = Buffer.concat(body).toString();
-                let url = new URLT(req.url);
-                let end = (_) => {
-                    let headers = {
-                        ...proxyRes.headers,
-                    };
-                    delete headers['content-length'];
-                    res.writeHead(proxyRes.statusCode, headers);
-                    res.end(_);
-                }
-                switch (true) {
-                    case op.homeReg.test(url.path):
+        }, (proxyRes, req, res, def, getBody) => {
+            let url = new URLT(req.url);
+            let end = (_) => {
+                let headers = ObjectUtils.clone2(proxyRes.headers);
+                delete headers['content-length'];
+                res.writeHead(proxyRes.statusCode, headers);
+                res.end(_);
+            }
+            switch (true) {
+                // 主页
+                case op.homeReg.test(url.path):
+                    getBody().then((body) => {
                         end(injectScript(body));
-                        break;
-                    case URLT.contrast(url.path, injectScriptName):
-                        fileRes(path.join(PathConst.webDistPath, 'index.js'), res as any, {
-                            trasform: (b) => {
-                                return temDataInject(b.toString(), {
-                                    ...injectScriptOp,
-                                });
-                            }
-                        });
-                        break;
-                    default:
-                        end(body);
-                        break;
-                }
-            });
+                    });
+                    break;
+                // 注入脚本内容
+                case URLT.contrast(url.path, injectScriptName):
+                    fileRes(injectScriptUrl, res, {
+                        trasform: (b) => {
+                            return temDataInject(b.toString(), {
+                                ...injectScriptOp,
+                            });
+                        }
+                    });
+                    break;
+                default:
+                    def();
+                    break;
+            }
         });
         return PortTool.getPool().then((port) => {
             proxyServer.listen(port);
@@ -94,13 +84,15 @@ export function localProxy(op: Pick<IConfig, 'proxyDir' | 'proxyServer' | 'home'
         app.all('*', (req, res) => {
             let url = new URLT(req.url);
             switch (true) {
+                // 主页
                 case op.homeReg.test(url.path):
                     fileRes(path.join(op.proxyDir, op.home), res, {
                         trasform: injectScript,
                     });
                     break;
+                // 注入脚本内容
                 case URLT.contrast(url.path, injectScriptName):
-                    fileRes(path.join(PathConst.webDistPath, 'index.js'), res, {
+                    fileRes(injectScriptUrl, res, {
                         trasform: (b) => {
                             return temDataInject(b.toString(), {
                                 ...injectScriptOp,
